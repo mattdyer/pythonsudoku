@@ -1,19 +1,6 @@
 
 import copy
 
-puzzle = [
-	[1,0,0,0,0,0,0,0,0],
-	[0,2,0,0,0,0,0,0,0],
-	[0,0,3,0,0,0,0,0,0],
-	[0,0,0,4,0,0,0,0,0],
-	[0,0,0,0,5,0,0,0,0],
-	[0,0,0,0,0,6,0,0,0],
-	[0,0,0,0,0,0,7,0,0],
-	[0,0,0,0,0,0,0,8,0],
-	[0,0,0,0,0,0,0,0,9]
-]
-
-
 # one solution
 puzzle = [
 	[1,2,3,0,0,6,7,8,9],
@@ -26,7 +13,6 @@ puzzle = [
 	[9,3,0,0,6,0,8,1,4],
 	[8,6,0,0,0,0,5,3,2]
 ]
-
 
 #multiple solutions
 puzzle = [
@@ -41,18 +27,34 @@ puzzle = [
 	[8,6,0,0,0,0,5,3,2]
 ]
 
+puzzle = [
+	[1,0,0,0,0,0,0,0,0],
+	[0,2,0,0,0,0,0,0,0],
+	[0,0,3,0,0,0,0,0,0],
+	[0,0,0,4,0,0,0,0,0],
+	[0,0,0,0,5,0,0,0,0],
+	[0,0,0,0,0,6,0,0,0],
+	[0,0,0,0,0,0,7,0,0],
+	[0,0,0,0,0,0,0,8,0],
+	[0,0,0,0,0,0,0,0,9]
+]
 
 
 original_puzzle = copy.deepcopy(puzzle)
 
-def convert_to_lists(puzzle):
+def convert_to_list(puzzle):
+	
+	puzzle_list = []
+	
 	for row in range(0, 9):
 		for col in range(0, 9):
 			value = puzzle[row][col]
 			if value == 0:
-				puzzle[row][col] = []
+				puzzle_list.append('')
 			else:
-				puzzle[row][col] = [value]
+				puzzle_list.append(str(value))
+				
+	return puzzle_list
 
 
 def validateSet(set):
@@ -61,16 +63,13 @@ def validateSet(set):
 	check = {}
 	
 	for num in range(1,10):
-		check[num] = 0
+		check[str(num)] = 0
 	
 	for numbers in set:
 		
-		if len(numbers) == 1:
-			number = numbers[0]
-		else:
-			number = 0
+		number = numbers
 		
-		if number > 0:
+		if len(number) > 0:
 			
 			if check[number] > 0:
 				validSet = False
@@ -81,14 +80,22 @@ def validateSet(set):
 
 
 def getRow(puzzle, number):
-	return puzzle[number - 1]
+	
+	row = []
+	
+	for num in range(0,9):
+		index = num + ((number - 1) * 9)
+	
+		row.append(puzzle[index])
+	
+	return row
 
 
 def getColumn(puzzle, number):
 	col = []
 	
-	for row in puzzle:
-		col.append(row[number - 1])
+	for num in range(0,9):
+		col.append(puzzle[(num * 9) + (number - 1)])
 	
 	return col
 
@@ -99,9 +106,20 @@ def getBlock(puzzle, blockRow, blockCol):
 	
 	for row in range(0,3):
 		for col in range(0,3):
-			block.append(puzzle[row + (3 * (blockRow - 1))][col + (3 * (blockCol - 1))])
+			
+			index = ((row + (3 * (blockRow - 1))) * 9) + (col + (3 * (blockCol - 1)))
+			
+			block.append(puzzle[index])
 	
-	return block;
+	return block
+
+
+def getIndex(row, col):
+	return ((row * 9) + col)
+
+
+def getValue(puzzle, row, col):
+	return puzzle[getIndex(row, col)]
 
 
 def validatePuzzle(puzzle):
@@ -109,57 +127,65 @@ def validatePuzzle(puzzle):
 	valid = True
 	
 	for num in range(1, 10):
+		#print('column')
 		valid = valid and validateSet(getColumn(puzzle, num))
 	
 	for num in range(1, 10):
+		#print('row')
 		valid = valid and validateSet(getRow(puzzle, num))
 	
-	for row in range(0, 3):
-		for col in range(0, 3):
+	for row in range(1, 4):
+		for col in range(1, 4):
+			#print('block')
 			valid = valid and validateSet(getBlock(puzzle, row, col))
 	
 	return valid
+
+
+def setValue(puzzle, row, col, value):
+	puzzle[getIndex(row, col)] = value
+
 
 def add_possible_values(puzzle):
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
-			value = puzzle[row][col]
-			if len(value) != 1:
-				puzzle[row][col] = get_possible_values(puzzle, row + 1, col + 1)
+			value = getValue(puzzle, row, col)
+			if len(str(value)) != 1:
+				setValue(puzzle, row, col, ','.join(get_possible_values(puzzle, row + 1, col + 1)))
 		
 
 def get_possible_values(puzzle, row, col):
 	
-	possible_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+	possible_values = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 	
-	if len(puzzle[row - 1][col - 1]) > 0:
-		possible_values = puzzle[row - 1][col - 1].copy()
+	if len(str(getValue(puzzle, row - 1, col - 1))) > 0:
+		possible_values = getValue(puzzle, row - 1, col - 1).split(',')
 	
 	#print(getRow(puzzle, row))
 	
 	for nums in getRow(puzzle, row):
-		if len(nums) == 1:
+		if len(str(nums)) == 1:
 			try:
-				possible_values.remove(nums[0])
+				possible_values.remove(str(nums))
 			except ValueError:
 				pass
 	
 	#print(getColumn(puzzle, col))
 	
 	for nums in getColumn(puzzle, col):
-		if len(nums) == 1:
+		if len(str(nums)) == 1:
 			try:
-				possible_values.remove(nums[0])
+				possible_values.remove(str(nums))
 			except ValueError:
 				pass
 	
 	blockCoordinates = get_block_coordinates(row, col)
 	
 	for nums in getBlock(puzzle, blockCoordinates[0], blockCoordinates[1]):
-		if len(nums) == 1:
+		if len(str(nums)) == 1:
 			try:
-				possible_values.remove(nums[0])
+				possible_values.remove(str(nums))
 			except ValueError:
 				pass
 	
@@ -189,7 +215,13 @@ def convert_coordinate(coor):
 
 def printPuzzle(puzzle):
 	for row in range(0, 9):
-		print(puzzle[row])
+		
+		rowList = []
+		
+		for col in range(0, 9):
+			rowList.append(getValue(puzzle, row, col))
+		
+		print(rowList)
 
 
 def test_solution(puzzle):
@@ -197,14 +229,17 @@ def test_solution(puzzle):
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
-			if len(puzzle[row][col]) > 1:
+			
+			value = getValue(puzzle, row, col)
+			
+			if len(value) > 1:
 				finished = False
-			if len(puzzle[row][col]) == 0:
+			if len(value) == 0:
 				finished = False
 	
 	#print(finished)
-	
-	finished = finished and validatePuzzle(puzzle)
+	if finished:
+		finished = finished and validatePuzzle(puzzle)
 	
 	#print(finished)
 	
@@ -221,15 +256,16 @@ def find_solutions(puzzle):
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
-			possible_values = puzzle[row][col]
+			possible_values = getValue(puzzle, row, col).split(',')
 			
 			#print(possible_values)
 			
 			if len(possible_values) != 1:
 				
 				for num in possible_values:
-					new_puzzle = copy.deepcopy(puzzle)
-					new_puzzle[row][col] = [num]
+					new_puzzle = puzzle.copy()
+					
+					setValue(new_puzzle, row, col, num)
 					
 					#printPuzzle(new_puzzle)
 					
@@ -242,14 +278,37 @@ def find_solutions(puzzle):
 					find_solutions(new_puzzle)
 				
 			
+def testGetFunctions(puzzle):
 	
+	for blockRow in range(1,4):
+		for blockCol in range(1,4):
+			print('block')
+			print([blockRow, blockCol])
+			print(getBlock(puzzle, blockRow, blockCol))
+	
+	for row in range(1, 10):
+		print('row')
+		print(row)
+		print(getRow(puzzle, row))
+	
+	for col in range(1, 10):
+		print('column')
+		print(col)
+		print(getColumn(puzzle, col))
+	
+	for row in range(0, 9):
+		for col in range(0, 9):
+			print([row, col])
+			print(getValue(puzzle, row, col))
 	
 
 #for nums in getRow(puzzle, 1):
 #	print(nums)
 
 
-convert_to_lists(puzzle)
+puzzle = convert_to_list(puzzle)
+
+#testGetFunctions(puzzle)
 
 #print(validatePuzzle(puzzle))
 
@@ -260,9 +319,8 @@ convert_to_lists(puzzle)
 if(validatePuzzle(puzzle)):
 	add_possible_values(puzzle)
 
-	#printPuzzle(puzzle)
+	printPuzzle(puzzle)
 
-	
 	find_solutions(puzzle)
 
-printPuzzle(original_puzzle)
+#printPuzzle(original_puzzle)
