@@ -1,31 +1,20 @@
 
-#multiple solutions
-puzzle = [
-	[1,2,3,0,0,6,7,8,9],
-	[4,5,6,7,8,0,1,2,3],
-	[7,8,0,0,2,3,4,5,6],
-	[0,9,1,0,4,5,6,7,8],
-	[0,0,0,3,9,1,2,0,5],
-	[0,4,0,0,0,0,0,9,1],
-	[0,0,0,8,3,4,0,0,7],
-	[9,3,0,0,6,0,8,1,4],
+
+# simple solution
+puzzle1 = [
+	[1,2,3,4,5,6,7,8,9],
+	[4,5,6,7,8,9,1,2,3],
+	[7,8,9,1,2,3,4,5,6],
+	[3,9,1,2,4,5,6,7,8],
+	[6,7,8,3,9,1,2,0,5],
+	[2,4,5,6,7,8,3,9,1],
+	[5,1,2,8,3,4,9,6,7],
+	[9,3,7,5,6,2,8,1,4],
 	[8,6,0,0,0,0,5,3,2]
 ]
 
-puzzle = [
-	[1,0,0,0,0,0,0,0,0],
-	[0,2,0,0,0,0,0,0,0],
-	[0,0,3,0,0,0,0,0,0],
-	[0,0,0,4,0,0,0,0,0],
-	[0,0,0,0,5,0,0,0,0],
-	[0,0,0,0,0,6,0,0,0],
-	[0,0,0,0,0,0,7,0,0],
-	[0,0,0,0,0,0,0,8,0],
-	[0,0,0,0,0,0,0,0,9]
-]
-
 # one solution
-puzzle = [
+puzzle2 = [
 	[1,2,3,0,0,6,7,8,9],
 	[4,5,6,7,8,0,1,2,3],
 	[7,8,9,1,2,3,4,5,6],
@@ -37,6 +26,32 @@ puzzle = [
 	[8,6,0,0,0,0,5,3,2]
 ]
 
+
+#multiple solutions
+puzzle3 = [
+	[1,2,3,0,0,6,7,8,9],
+	[4,5,6,7,8,0,1,2,3],
+	[7,8,0,0,2,3,4,5,6],
+	[0,9,1,0,4,5,6,7,8],
+	[0,0,0,3,9,1,2,0,5],
+	[0,4,0,0,0,0,0,9,1],
+	[0,0,0,8,3,4,0,0,7],
+	[9,3,0,0,6,0,8,1,4],
+	[8,6,0,0,0,0,5,3,2]
+]
+
+
+puzzle4 = [
+	[1,0,0,0,0,0,0,0,0],
+	[0,2,0,0,0,0,0,0,0],
+	[0,0,3,0,0,0,0,0,0],
+	[0,0,0,4,0,0,0,0,0],
+	[0,0,0,0,5,0,0,0,0],
+	[0,0,0,0,0,6,0,0,0],
+	[0,0,0,0,0,0,7,0,0],
+	[0,0,0,0,0,0,0,8,0],
+	[0,0,0,0,0,0,0,0,9]
+]
 
 
 numbers = {
@@ -65,14 +80,21 @@ number_check = {
 	int('000000001', 2):9
 }
 
+#print(number_check)
+
 #bits = int('111100001', 2) 
 
-#new_bits = bits ^ numbers[4]
+#new_bits = bits & ~numbers[4]
+
+#new_bits = new_bits & ~numbers[4]
 
 #expected_bits = int('111000001', 2)
 
-#print(new_bits)
-#print(expected_bits)
+#print("{0:b}".format(bits))
+#print("{0:b}".format(new_bits))
+#print("{0:b}".format(expected_bits))
+
+#print('bits')
 
 def convert_to_bits(puzzle):
 	
@@ -92,16 +114,15 @@ def validateSet(set):
 	check = {}
 	
 	for num in range(1,10):
-		check[numbers[num]] = 0
+		check[num] = 0
 	
 	for number in set:
 		
 		if number in number_check and number != 0:
-			
-			if check[number] > 0:
+			if check[number_check[number]] > 0:
 				validSet = False
 			
-			check[number] = check[number] + 1
+			check[number_check[number]] = check[number_check[number]] + 1
 	
 	return validSet
 
@@ -184,7 +205,7 @@ def printPuzzle(puzzle):
 			if value in number_check:
 				rowList.append(number_check[value])
 			else:
-				rowList.append(value)
+				rowList.append("{0:b}".format(value))
 		
 		print(rowList)
 
@@ -205,14 +226,16 @@ def validatePuzzle(puzzle):
 		#print('column')
 		valid = valid and validateSet(getColumn(puzzle, num))
 	
-	for num in range(1, 10):
-		#print('row')
-		valid = valid and validateSet(getRow(puzzle, num))
+	if valid:
+		for num in range(1, 10):
+			#print('row')
+			valid = valid and validateSet(getRow(puzzle, num))
 	
-	for row in range(1, 4):
-		for col in range(1, 4):
-			#print('block')
-			valid = valid and validateSet(getBlock(puzzle, row, col))
+	if valid:
+		for row in range(1, 4):
+			for col in range(1, 4):
+				#print('block')
+				valid = valid and validateSet(getBlock(puzzle, row, col))
 	
 	return valid
 
@@ -236,19 +259,21 @@ def get_possible_values(puzzle, row, col):
 	
 	for nums in getRow(puzzle, row):
 		if nums in number_check:
-			possible_values = possible_values ^ nums
+			possible_values = possible_values & ~nums
 	
 	#print(getColumn(puzzle, col))
 	
-	for nums in getColumn(puzzle, col):
-		if nums in number_check:
-			possible_values = possible_values ^ nums
+	if not (possible_values in number_check):
+		for nums in getColumn(puzzle, col):
+			if nums in number_check:
+				possible_values = possible_values & ~nums
 	
-	blockCoordinates = get_block_coordinates(row, col)
-	
-	for nums in getBlock(puzzle, blockCoordinates[0], blockCoordinates[1]):
-		if nums in number_check:
-			possible_values = possible_values ^ nums
+	if not (possible_values in number_check):
+		blockCoordinates = get_block_coordinates(row, col)
+		
+		for nums in getBlock(puzzle, blockCoordinates[0], blockCoordinates[1]):
+			if nums in number_check:
+				possible_values = possible_values & ~nums
 	
 	return possible_values
 
@@ -265,7 +290,7 @@ def find_solutions(puzzle):
 			possible_values = getValue(puzzle, row, col)
 			
 			#print(possible_values)
-			#print(not (possible_values in number_check))
+			#print(possible_values in number_check)
 			
 			if not (possible_values in number_check):
 				
@@ -298,11 +323,8 @@ def test_solution(puzzle):
 			if not (value in number_check):
 				finished = False
 	
-	#print(finished)
 	if finished:
 		finished = finished and validatePuzzle(puzzle)
-	
-	#print(finished)
 	
 	return finished	
 
@@ -330,11 +352,9 @@ def testGetFunctions(puzzle):
 			print(getValue(puzzle, row, col))
 
 
-print(numbers)
+puzzle = convert_to_bits(puzzle4)
 
-puzzle = convert_to_bits(puzzle)
-
-#print("{0:b}".format(puzzle[0] | numbers[1]))
+#print("{0:b}".format(numbers[9]))
 
 printPuzzle(puzzle)
 
