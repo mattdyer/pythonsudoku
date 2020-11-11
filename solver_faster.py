@@ -3,7 +3,7 @@ import copy
 
 
 #multiple solutions
-puzzle = [
+puzzle3 = [
 	[1,2,3,0,0,6,7,8,9],
 	[4,5,6,7,8,0,1,2,3],
 	[7,8,0,0,2,3,4,5,6],
@@ -15,21 +15,8 @@ puzzle = [
 	[8,6,0,0,0,0,5,3,2]
 ]
 
-puzzle = [
-	[1,0,0,0,0,0,0,0,0],
-	[0,2,0,0,0,0,0,0,0],
-	[0,0,3,0,0,0,0,0,0],
-	[0,0,0,4,0,0,0,0,0],
-	[0,0,0,0,5,0,0,0,0],
-	[0,0,0,0,0,6,0,0,0],
-	[0,0,0,0,0,0,7,0,0],
-	[0,0,0,0,0,0,0,8,0],
-	[0,0,0,0,0,0,0,0,9]
-]
-
-
 # one solution
-puzzle = [
+puzzle2 = [
 	[1,2,3,0,0,6,7,8,9],
 	[4,5,6,7,8,0,1,2,3],
 	[7,8,9,1,2,3,4,5,6],
@@ -42,7 +29,7 @@ puzzle = [
 ]
 
 # simple puzzle
-puzzle = [
+puzzle1 = [
 	[1,2,3,4,5,6,7,8,9],
 	[4,5,6,7,8,9,1,2,3],
 	[7,8,9,1,2,3,4,5,6],
@@ -54,8 +41,20 @@ puzzle = [
 	[8,6,0,0,0,0,5,3,2]
 ]
 
+puzzle4 = [
+	[1,0,0,0,0,0,0,0,0],
+	[0,2,0,0,0,0,0,0,0],
+	[0,0,3,0,0,0,0,0,0],
+	[0,0,0,4,0,0,0,0,0],
+	[0,0,0,0,5,0,0,0,0],
+	[0,0,0,0,0,6,0,0,0],
+	[0,0,0,0,0,0,7,0,0],
+	[0,0,0,0,0,0,0,8,0],
+	[0,0,0,0,0,0,0,0,9]
+]
 
-original_puzzle = copy.deepcopy(puzzle)
+
+#original_puzzle = copy.deepcopy(puzzle)
 
 def convert_to_list(puzzle):
 	
@@ -263,7 +262,7 @@ def test_solution(puzzle):
 
 def find_solutions(puzzle):
 	
-	print('find_solution called')
+	#print('find_solution called')
 	
 	#printPuzzle(puzzle)
 	
@@ -282,7 +281,7 @@ def find_solutions(puzzle):
 					
 					setValue(new_puzzle, row, col, num)
 					
-					printPuzzle(new_puzzle)
+					#printPuzzle(new_puzzle)
 					
 					if(test_solution(new_puzzle)):
 						print('solution found')
@@ -321,7 +320,7 @@ def testGetFunctions(puzzle):
 #	print(nums)
 
 
-puzzle = convert_to_list(puzzle)
+puzzle = convert_to_list(puzzle3)
 
 #testGetFunctions(puzzle)
 

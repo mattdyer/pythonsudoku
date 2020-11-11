@@ -80,21 +80,6 @@ number_check = {
 	int('000000001', 2):9
 }
 
-#print(number_check)
-
-#bits = int('111100001', 2) 
-
-#new_bits = bits & ~numbers[4]
-
-#new_bits = new_bits & ~numbers[4]
-
-#expected_bits = int('111000001', 2)
-
-#print("{0:b}".format(bits))
-#print("{0:b}".format(new_bits))
-#print("{0:b}".format(expected_bits))
-
-#print('bits')
 
 def convert_to_bits(puzzle):
 	
@@ -125,17 +110,6 @@ def validateSet(set):
 			check[number_check[number]] = check[number_check[number]] + 1
 	
 	return validSet
-
-
-# def has_one_bit_set(number):
-	
-# 	has_bit_set = false
-	
-# 	for num in range(1,10):
-# 		has_set = has_set and number == numbers[num]
-	
-# 	return has_bit_set
-
 
 
 
@@ -309,7 +283,8 @@ def find_solutions(puzzle):
 						
 						add_possible_values(new_puzzle)
 						
-						find_solutions(new_puzzle)
+						if validatePuzzle(new_puzzle):
+							find_solutions(new_puzzle)
 
 
 def test_solution(puzzle):
@@ -320,7 +295,7 @@ def test_solution(puzzle):
 			
 			value = getValue(puzzle, row, col)
 			
-			if not (value in number_check):
+			if not (value in number_check) or value == 0:
 				finished = False
 	
 	if finished:
@@ -353,8 +328,6 @@ def testGetFunctions(puzzle):
 
 
 puzzle = convert_to_bits(puzzle4)
-
-#print("{0:b}".format(numbers[9]))
 
 printPuzzle(puzzle)
 
