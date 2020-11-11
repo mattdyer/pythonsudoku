@@ -1,3 +1,5 @@
+import time
+
 
 
 # simple solution
@@ -40,7 +42,7 @@ puzzle3 = [
 	[8,6,0,0,0,0,5,3,2]
 ]
 
-
+#very difficult
 puzzle4 = [
 	[1,0,0,0,0,0,0,0,0],
 	[0,2,0,0,0,0,0,0,0],
@@ -51,6 +53,33 @@ puzzle4 = [
 	[0,0,0,0,0,0,7,0,0],
 	[0,0,0,0,0,0,0,8,0],
 	[0,0,0,0,0,0,0,0,9]
+]
+
+#all zeros
+puzzle5 = [
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0]
+]
+
+
+#hard puzzle example
+puzzle6 = [
+	[0,2,0,0,0,0,0,0,0],
+	[0,0,0,6,0,0,0,0,3],
+	[0,7,4,0,8,0,0,0,0],
+	[0,0,0,0,0,3,0,0,2],
+	[0,8,0,0,4,0,0,1,0],
+	[6,0,0,5,0,0,0,0,0],
+	[0,0,0,0,1,0,7,8,0],
+	[5,0,0,0,0,9,0,0,0],
+	[0,0,0,0,0,0,0,4,0]
 ]
 
 
@@ -79,6 +108,9 @@ number_check = {
 	int('000000010', 2):8,
 	int('000000001', 2):9
 }
+
+
+call_count = 0
 
 
 def convert_to_bits(puzzle):
@@ -178,8 +210,11 @@ def printPuzzle(puzzle):
 			value = getValue(puzzle, row, col)
 			if value in number_check:
 				rowList.append(number_check[value])
+				#rowList.append("{:<9}".format(number_check[value]))
 			else:
-				rowList.append("{0:b}".format(value))
+				formattedValue = "{0:b}".format(value)
+				formattedValue = "{:<9}".format(formattedValue)
+				rowList.append(formattedValue)
 		
 		print(rowList)
 
@@ -249,22 +284,27 @@ def get_possible_values(puzzle, row, col):
 			if nums in number_check:
 				possible_values = possible_values & ~nums
 	
+	if possible_values == 0:
+		raise Exception('no possible values for ' + str(row) + ' ' + str(col))
+	
 	return possible_values
 
 def find_solutions(puzzle):
 	
-	#print('find_solution called')
+	print('find solutions called')
+	printPuzzle(puzzle)
 	
-	#printPuzzle(puzzle)
+	#global call_count
+	
+	#call_count = call_count + 1
+	
+	#print(call_count)
 	
 	solution_found = True
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
 			possible_values = getValue(puzzle, row, col)
-			
-			#print(possible_values)
-			#print(possible_values in number_check)
 			
 			if not (possible_values in number_check):
 				
@@ -275,17 +315,22 @@ def find_solutions(puzzle):
 						
 						setValue(new_puzzle, row, col, num)
 						
-						#printPuzzle(new_puzzle)
-						
-						if(test_solution(new_puzzle)):
-							print('solution found')
-							printPuzzle(new_puzzle)
-						
-						add_possible_values(new_puzzle)
-						
 						if validatePuzzle(new_puzzle):
-							find_solutions(new_puzzle)
-
+							try:
+								add_possible_values(new_puzzle)
+								
+								if(test_solution(new_puzzle)):
+									print('solution found')
+									printPuzzle(new_puzzle)
+								else:
+									find_solutions(new_puzzle)
+							except Exception as e:
+								e
+								#print(e)
+				
+						
+						
+						
 
 def test_solution(puzzle):
 	finished = True
@@ -297,6 +342,10 @@ def test_solution(puzzle):
 			
 			if not (value in number_check) or value == 0:
 				finished = False
+				break
+		
+		if not finished:
+			break
 	
 	if finished:
 		finished = finished and validatePuzzle(puzzle)
@@ -327,7 +376,7 @@ def testGetFunctions(puzzle):
 			print(getValue(puzzle, row, col))
 
 
-puzzle = convert_to_bits(puzzle4)
+puzzle = convert_to_bits(puzzle6)
 
 printPuzzle(puzzle)
 
