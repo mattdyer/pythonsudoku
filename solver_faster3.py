@@ -269,20 +269,28 @@ def get_possible_values(puzzle, row, col):
 	for nums in getRow(puzzle, row):
 		if nums in number_check:
 			possible_values = possible_values & ~nums
+			if possible_values == 0:
+				break
 	
 	#print(getColumn(puzzle, col))
 	
-	if not (possible_values in number_check):
-		for nums in getColumn(puzzle, col):
-			if nums in number_check:
-				possible_values = possible_values & ~nums
+	if not possible_values == 0:
+		if not (possible_values in number_check):
+			for nums in getColumn(puzzle, col):
+				if nums in number_check:
+					possible_values = possible_values & ~nums
+					if possible_values == 0:
+						break
 	
-	if not (possible_values in number_check):
-		blockCoordinates = get_block_coordinates(row, col)
-		
-		for nums in getBlock(puzzle, blockCoordinates[0], blockCoordinates[1]):
-			if nums in number_check:
-				possible_values = possible_values & ~nums
+	if not possible_values == 0:
+		if not (possible_values in number_check):
+			blockCoordinates = get_block_coordinates(row, col)
+			
+			for nums in getBlock(puzzle, blockCoordinates[0], blockCoordinates[1]):
+				if nums in number_check:
+					possible_values = possible_values & ~nums
+					if possible_values == 0:
+						break
 	
 	if possible_values == 0:
 		raise Exception('no possible values for ' + str(row) + ' ' + str(col))
@@ -291,14 +299,14 @@ def get_possible_values(puzzle, row, col):
 
 def find_solutions(puzzle):
 	
-	#print('find solutions called')
-	#printPuzzle(puzzle)
+	print('find solutions called')
+	printPuzzle(puzzle)
 	
-	#global call_count
+	global call_count
 	
-	#call_count = call_count + 1
+	call_count = call_count + 1
 	
-	#print(call_count)
+	print(call_count)
 	
 	solution_found = True
 	
