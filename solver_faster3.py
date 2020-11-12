@@ -136,10 +136,14 @@ def validateSet(set):
 	for number in set:
 		
 		if number in number_check and number != 0:
+			
 			if check[number_check[number]] > 0:
 				validSet = False
+				if not validSet:
+					break
 			
 			check[number_check[number]] = check[number_check[number]] + 1
+			
 	
 	return validSet
 
@@ -234,17 +238,25 @@ def validatePuzzle(puzzle):
 	for num in range(1, 10):
 		#print('column')
 		valid = valid and validateSet(getColumn(puzzle, num))
+		if not valid:
+			break
 	
 	if valid:
 		for num in range(1, 10):
 			#print('row')
 			valid = valid and validateSet(getRow(puzzle, num))
+			if not valid:
+				break
 	
 	if valid:
 		for row in range(1, 4):
 			for col in range(1, 4):
 				#print('block')
 				valid = valid and validateSet(getBlock(puzzle, row, col))
+				if not valid:
+					break
+			if not valid:
+				break
 	
 	return valid
 
@@ -299,16 +311,17 @@ def get_possible_values(puzzle, row, col):
 
 def find_solutions(puzzle):
 	
-	print('find solutions called')
-	printPuzzle(puzzle)
-	
 	global call_count
+	
+	if call_count % 1000 == 0:
+		print('find solutions called')
+		printPuzzle(puzzle)
+		print(call_count)
+	
 	
 	call_count = call_count + 1
 	
-	print(call_count)
-	
-	solution_found = True
+	#print(call_count)
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
@@ -319,22 +332,32 @@ def find_solutions(puzzle):
 				for num in number_check:
 					if num & possible_values > 0:
 						
-						new_puzzle = puzzle.copy()
+						original_value = getValue(puzzle, row, col)
 						
-						setValue(new_puzzle, row, col, num)
+						#new_puzzle = puzzle.copy()
 						
-						if validatePuzzle(new_puzzle):
+						setValue(puzzle, row, col, num)
+						
+						if validatePuzzle(puzzle):
+							
+							new_puzzle = puzzle.copy()
+							
 							try:
 								add_possible_values(new_puzzle)
 								
 								if(test_solution(new_puzzle)):
-									print('solution found')
+									print('------------------------------------------------------')
+									print('----------------- solution found ---------------------')
+									print('------------------------------------------------------')
 									printPuzzle(new_puzzle)
+									print(call_count)
 								else:
 									find_solutions(new_puzzle)
 							except Exception as e:
 								e
 								#print(e)
+						
+						setValue(puzzle, row, col, original_value)
 				
 						
 						
@@ -384,7 +407,7 @@ def testGetFunctions(puzzle):
 			print(getValue(puzzle, row, col))
 
 
-puzzle = convert_to_bits(puzzle6)
+puzzle = convert_to_bits(puzzle5)
 
 printPuzzle(puzzle)
 
