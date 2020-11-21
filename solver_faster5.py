@@ -134,29 +134,28 @@ def validateSet(set, call_counts):
 	
 	valid_set = True
 	
+	# counts = {}
+	
+	# for num in set:
+	# 	try:
+	# 		counts[num] = counts[num] + 1
+			
+	# 		if counts[num] > 1 and num != 0 and num in number_check:
+	# 			valid_set = False
+	# 			break
+			
+	# 	except Exception as e:
+	# 		counts[num] = 1
+	
+	#if call_counts['validateSet'] % 1000 == 0:
+	#	print(valid_set)
+	#	print(counts)
+	
 	for num in range(1,10):
 		if set.count(num) > 1:
 			valid_set = False
 			if not valid_set:
 				break
-	
-	# validSet = True
-	
-	# check = {}
-	
-	# for num in range(1,10):
-	# 	check[num] = 0
-	
-	# for number in set:
-		
-	# 	if number in number_check and number != 0:
-			
-	# 		if check[number_check[number]] > 0:
-	# 			validSet = False
-	# 			if not validSet:
-	# 				break
-			
-	# 		check[number_check[number]] = check[number_check[number]] + 1
 			
 	
 	return valid_set
@@ -238,7 +237,7 @@ def printPuzzle(puzzle):
 		print(rowList)
 
 def getIndex(row, col):
-	return ((row * 9) + col)
+	return (row * 9) + col
 
 def getValue(puzzle, row, col):
 	return puzzle[getIndex(row, col)]
@@ -293,13 +292,16 @@ def get_possible_values(puzzle, row, col):
 	if not (getValue(puzzle, row - 1, col - 1) in number_check):
 		possible_values = getValue(puzzle, row - 1, col - 1)
 	
+	if possible_values == 0:
+		raise Exception('no possible values for ' + str(row) + ' ' + str(col))
+	
 	#print(getRow(puzzle, row))
 	
 	for nums in getRow(puzzle, row):
 		if nums in number_check:
 			possible_values = possible_values & ~nums
 			if possible_values == 0:
-				break
+				raise Exception('no possible values for ' + str(row) + ' ' + str(col))
 	
 	#print(getColumn(puzzle, col))
 	
@@ -309,7 +311,7 @@ def get_possible_values(puzzle, row, col):
 				if nums in number_check:
 					possible_values = possible_values & ~nums
 					if possible_values == 0:
-						break
+						raise Exception('no possible values for ' + str(row) + ' ' + str(col))
 	
 	if not possible_values == 0:
 		if not (possible_values in number_check):
@@ -319,7 +321,7 @@ def get_possible_values(puzzle, row, col):
 				if nums in number_check:
 					possible_values = possible_values & ~nums
 					if possible_values == 0:
-						break
+						raise Exception('no possible values for ' + str(row) + ' ' + str(col))
 	
 	if possible_values == 0:
 		raise Exception('no possible values for ' + str(row) + ' ' + str(col))
@@ -427,7 +429,7 @@ def testGetFunctions(puzzle):
 			print(getValue(puzzle, row, col))
 
 
-puzzle = convert_to_bits(puzzle6)
+puzzle = convert_to_bits(puzzle4)
 
 printPuzzle(puzzle)
 
