@@ -13,7 +13,7 @@ puzzle1 = [
 	[8,6,0,0,0,0,5,3,2]
 ]
 
-# one solution
+# two solutions
 puzzle2 = [
 	[1,2,3,0,0,6,7,8,9],
 	[4,5,6,7,8,0,1,2,3],
@@ -111,8 +111,8 @@ number_check = {
 call_counts = {
 	'find_solutions': 0,
 	'test_solution': 0,
-	'validatePuzzle': 0,
-	'validateSet': 0
+	'validate_puzzle': 0,
+	'validate_set': 0
 }
 
 
@@ -128,9 +128,9 @@ def convert_to_bits(puzzle):
 	
 	return new_puzzle
 
-def validateSet(set, call_counts):
+def validate_set(set, call_counts):
 	
-	call_counts['validateSet'] = call_counts['validateSet'] + 1
+	call_counts['validate_set'] = call_counts['validate_set'] + 1
 	
 	valid_set = True
 	
@@ -147,7 +147,7 @@ def validateSet(set, call_counts):
 	# 	except Exception as e:
 	# 		counts[num] = 1
 	
-	#if call_counts['validateSet'] % 1000 == 0:
+	#if call_counts['validate_set'] % 1000 == 0:
 	#	print(valid_set)
 	#	print(counts)
 	
@@ -162,7 +162,7 @@ def validateSet(set, call_counts):
 
 
 
-def getRow(puzzle, number):
+def get_row(puzzle, number):
 	
 	row = []
 	
@@ -174,7 +174,7 @@ def getRow(puzzle, number):
 	return row
 
 
-def getColumn(puzzle, number):
+def get_column(puzzle, number):
 	col = []
 	
 	for num in range(0,9):
@@ -183,7 +183,7 @@ def getColumn(puzzle, number):
 	return col
 
 
-def getBlock(puzzle, blockRow, blockCol):
+def get_block(puzzle, blockRow, blockCol):
 	
 	block = []
 	
@@ -218,13 +218,13 @@ def convert_coordinate(coor):
 	
 	return blockCoor
 
-def printPuzzle(puzzle):
+def print_puzzle(puzzle):
 	for row in range(0, 9):
 		
 		rowList = []
 		
 		for col in range(0, 9):
-			value = getValue(puzzle, row, col)
+			value = get_value(puzzle, row, col)
 			if value in number_check:
 				#rowList.append(number_check[value])
 				rowList.append("{:<9}".format(number_check[value]))
@@ -236,31 +236,31 @@ def printPuzzle(puzzle):
 		
 		print(rowList)
 
-def getIndex(row, col):
+def get_index(row, col):
 	return (row * 9) + col
 
-def getValue(puzzle, row, col):
-	return puzzle[getIndex(row, col)]
+def get_value(puzzle, row, col):
+	return puzzle[get_index(row, col)]
 
-def setValue(puzzle, row, col, value):
-	puzzle[getIndex(row, col)] = value
+def set_value(puzzle, row, col, value):
+	puzzle[get_index(row, col)] = value
 
-def validatePuzzle(puzzle, call_counts):
+def validate_puzzle(puzzle, call_counts):
 	
-	call_counts['validatePuzzle'] = call_counts['validatePuzzle'] + 1
+	call_counts['validate_puzzle'] = call_counts['validate_puzzle'] + 1
 	
 	valid = True
 	
 	for num in range(1, 10):
 		#print('column')
-		valid = valid and validateSet(getColumn(puzzle, num), call_counts)
+		valid = valid and validate_set(get_column(puzzle, num), call_counts)
 		if not valid:
 			break
 	
 	if valid:
 		for num in range(1, 10):
 			#print('row')
-			valid = valid and validateSet(getRow(puzzle, num), call_counts)
+			valid = valid and validate_set(get_row(puzzle, num), call_counts)
 			if not valid:
 				break
 	
@@ -268,7 +268,7 @@ def validatePuzzle(puzzle, call_counts):
 		for row in range(1, 4):
 			for col in range(1, 4):
 				#print('block')
-				valid = valid and validateSet(getBlock(puzzle, row, col), call_counts)
+				valid = valid and validate_set(get_block(puzzle, row, col), call_counts)
 				if not valid:
 					break
 			if not valid:
@@ -280,34 +280,34 @@ def add_possible_values(puzzle):
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
-			value = getValue(puzzle, row, col)
+			value = get_value(puzzle, row, col)
 			if not (value in number_check) or value == 0:
-				setValue(puzzle, row, col, get_possible_values(puzzle, row + 1, col + 1))
+				set_value(puzzle, row, col, get_possible_values(puzzle, row + 1, col + 1))
 
 
 def get_possible_values(puzzle, row, col):
 	
 	possible_values = int('111111111', 2)
 	
-	if not (getValue(puzzle, row - 1, col - 1) in number_check):
-		possible_values = getValue(puzzle, row - 1, col - 1)
+	if not (get_value(puzzle, row - 1, col - 1) in number_check):
+		possible_values = get_value(puzzle, row - 1, col - 1)
 	
 	if possible_values == 0:
 		raise Exception('no possible values for ' + str(row) + ' ' + str(col))
 	
-	#print(getRow(puzzle, row))
+	#print(get_row(puzzle, row))
 	
-	for nums in getRow(puzzle, row):
+	for nums in get_row(puzzle, row):
 		if nums in number_check:
 			possible_values = possible_values & ~nums
 			if possible_values == 0:
 				raise Exception('no possible values for ' + str(row) + ' ' + str(col))
 	
-	#print(getColumn(puzzle, col))
+	#print(get_column(puzzle, col))
 	
 	if not possible_values == 0:
 		if not (possible_values in number_check):
-			for nums in getColumn(puzzle, col):
+			for nums in get_column(puzzle, col):
 				if nums in number_check:
 					possible_values = possible_values & ~nums
 					if possible_values == 0:
@@ -317,7 +317,7 @@ def get_possible_values(puzzle, row, col):
 		if not (possible_values in number_check):
 			blockCoordinates = get_block_coordinates(row, col)
 			
-			for nums in getBlock(puzzle, blockCoordinates[0], blockCoordinates[1]):
+			for nums in get_block(puzzle, blockCoordinates[0], blockCoordinates[1]):
 				if nums in number_check:
 					possible_values = possible_values & ~nums
 					if possible_values == 0:
@@ -332,7 +332,7 @@ def find_solutions(puzzle, call_counts):
 	
 	if call_counts['find_solutions'] % 1000 == 0:
 		print('find solutions called')
-		printPuzzle(puzzle)
+		print_puzzle(puzzle)
 		print(call_counts)
 	
 	
@@ -341,22 +341,22 @@ def find_solutions(puzzle, call_counts):
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
-			possible_values = getValue(puzzle, row, col)
+			possible_values = get_value(puzzle, row, col)
 			
 			if not (possible_values in number_check):
 				
 				for num in number_check:
 					if num & possible_values > 0:
 						
-						original_value = getValue(puzzle, row, col)
+						original_value = get_value(puzzle, row, col)
 						
 						#new_puzzle = puzzle.copy()
 						
-						setValue(puzzle, row, col, num)
+						set_value(puzzle, row, col, num)
 						
 						block_coords = get_block_coordinates(row, col)
 						
-						if validateSet(getRow(puzzle, row), call_counts) and validateSet(getColumn(puzzle, col), call_counts) and validateSet(getBlock(puzzle, block_coords[0], block_coords[1]), call_counts):
+						if validate_set(get_row(puzzle, row), call_counts) and validate_set(get_column(puzzle, col), call_counts) and validate_set(get_block(puzzle, block_coords[0], block_coords[1]), call_counts):
 							
 							new_puzzle = puzzle.copy()
 							
@@ -367,7 +367,7 @@ def find_solutions(puzzle, call_counts):
 									print('------------------------------------------------------')
 									print('----------------- solution found ---------------------')
 									print('------------------------------------------------------')
-									printPuzzle(new_puzzle)
+									print_puzzle(new_puzzle)
 									print(call_counts)
 								else:
 									find_solutions(new_puzzle, call_counts)
@@ -375,7 +375,7 @@ def find_solutions(puzzle, call_counts):
 								e
 								#print(e)
 						
-						setValue(puzzle, row, col, original_value)
+						set_value(puzzle, row, col, original_value)
 				
 						
 						
@@ -391,7 +391,7 @@ def test_solution(puzzle, call_counts):
 	for row in range(0, 9):
 		for col in range(0, 9):
 			
-			value = getValue(puzzle, row, col)
+			value = get_value(puzzle, row, col)
 			
 			if not (value in number_check) or value == 0:
 				finished = False
@@ -401,44 +401,44 @@ def test_solution(puzzle, call_counts):
 			break
 	
 	if finished:
-		finished = finished and validatePuzzle(puzzle, call_counts)
+		finished = finished and validate_puzzle(puzzle, call_counts)
 	
 	return finished	
 
-def testGetFunctions(puzzle):
+def test_get_functions(puzzle):
 	
 	for blockRow in range(1,4):
 		for blockCol in range(1,4):
 			print('block')
 			print([blockRow, blockCol])
-			print(getBlock(puzzle, blockRow, blockCol))
+			print(get_block(puzzle, blockRow, blockCol))
 	
 	for row in range(1, 10):
 		print('row')
 		print(row)
-		print(getRow(puzzle, row))
+		print(get_row(puzzle, row))
 	
 	for col in range(1, 10):
 		print('column')
 		print(col)
-		print(getColumn(puzzle, col))
+		print(get_column(puzzle, col))
 	
 	for row in range(0, 9):
 		for col in range(0, 9):
 			print([row, col])
-			print(getValue(puzzle, row, col))
+			print(get_value(puzzle, row, col))
 
 
 puzzle = convert_to_bits(puzzle4)
 
-printPuzzle(puzzle)
+print_puzzle(puzzle)
 
-#testGetFunctions(puzzle)
+#test_get_functions(puzzle)
 
-if(validatePuzzle(puzzle, call_counts)):
+if(validate_puzzle(puzzle, call_counts)):
 	add_possible_values(puzzle)
 	
 	print('with values')
-	printPuzzle(puzzle)
+	print_puzzle(puzzle)
 	
 	find_solutions(puzzle, call_counts)
