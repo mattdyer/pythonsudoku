@@ -81,22 +81,15 @@ puzzle6 = [
 ]
 
 
-puzzle_coords = {}
-	
-puzzle_coords[1] = {}
-puzzle_coords[2] = {}
-puzzle_coords[3] = {}
-
-puzzle_coords[1][1] = [0, 1, 2, 9, 10, 11, 18, 19, 20]
-puzzle_coords[1][2] = [3, 4, 5, 12, 13, 14, 21, 22, 23]
-puzzle_coords[1][3] = [6, 7, 8, 15, 16, 17, 24, 25, 26]
-puzzle_coords[2][1] = [27, 28, 29, 36, 37, 38, 45, 46, 47]
-puzzle_coords[2][2] = [30, 31, 32, 39, 40, 41, 48, 49, 50]
-puzzle_coords[2][3] = [33, 34, 35, 42, 43, 44, 51, 52, 53]
-puzzle_coords[3][1] = [54, 55, 56, 63, 64, 65, 72, 73, 74]
-puzzle_coords[3][2] = [57, 58, 59, 66, 67, 68, 75, 76, 77]
-puzzle_coords[3][3] = [60, 61, 62, 69, 70, 71, 78, 79, 80]
-
+#['1', '2', '3', '4', '9', '5', '8', '6', '7']
+#['8', '5', '9', '6', '7', '1', '4', '2', '3']
+#['9', '7', '4', '3', '8', '2', '1', '5', '1']
+#['4', '9', '5', '1', '6', '3', '5', '7', '2']
+#['3', '8', '2', '9', '4', '7', '5', '1', '6']
+#['6', '3', '1', '5', '2', '8', '9', '7', '4']
+#['3', '9', '6', '2', '1', '4', '7', '8', '5']
+#['5', '4', '8', '7', '3', '9', '2', '6', '1']
+#['2', '1', '7', '8', '5', '6', '3', '4', '9']
 
 numbers = {
 	0:int('000000000', 2),
@@ -182,11 +175,18 @@ def get_row(puzzle, number):
 	
 	row = {}
 	
-	start = 0 + ((number - 1) * 9)
-	stop = 8 + ((number - 1) * 9)
-	
-	row['set'] = puzzle[start:stop]
+	row['set'] = []
 	row['valid'] = True
+	
+	counts = {}
+	
+	for num in range(0,9):
+		index = num + ((number - 1) * 9)
+		
+		value = puzzle[index]
+		
+		add_value_to_set(row, counts, value)
+		
 	
 	return row
 
@@ -195,8 +195,16 @@ def get_column(puzzle, number):
 	
 	col = {}
 	
-	col['set'] = puzzle[number - 1:81:9]
+	col['set'] = []
 	col['valid'] = True
+	
+	counts = {}
+	
+	for num in range(0,9):
+		index = (num * 9) + (number - 1)
+		value = puzzle[index]
+		
+		add_value_to_set(col, counts, value)
 	
 	return col
 
@@ -205,8 +213,19 @@ def get_block(puzzle, blockRow, blockCol):
 	
 	block = {}
 	
-	block['set'] = [puzzle[x] for x in puzzle_coords[blockRow][blockCol]]
+	block['set'] = []
 	block['valid'] = True
+	
+	counts = {}
+	
+	for row in range(0,3):
+		for col in range(0,3):
+			
+			index = ((row + (3 * (blockRow - 1))) * 9) + (col + (3 * (blockCol - 1)))
+			
+			value = puzzle[index]
+			
+			add_value_to_set(block, counts, value)
 	
 	return block
 
@@ -238,20 +257,14 @@ def convert_coordinate(coor):
 	
 	blockCoor = 0
 	
-	coors = {
-		1: 1,
-		2: 1,
-		3: 1,
-		4: 2,
-		5: 2,
-		6: 2,
-		7: 3,
-		8: 3,
-		9: 3
-	}
+	if(coor == 1 or coor == 2 or coor == 3):
+		blockCoor = 1
 	
-	if(coor in coors):
-		blockCoor = coors[coor]
+	if(coor == 4 or coor == 5 or coor == 6):
+		blockCoor = 2
+	
+	if(coor == 7 or coor == 8 or coor == 9):
+		blockCoor = 3
 	
 	return blockCoor
 
@@ -366,7 +379,7 @@ def get_possible_values(puzzle, row, col):
 def raise_no_values(row, col):
 	raise Exception('no possible values for ' + str(row) + ' ' + str(col))
 
-def find_solutions(puzzle, call_count):
+def find_solutions(puzzle, call_count, row, col):
 	
 	#print('-------------- top ----------------')
 	#print_puzzle(puzzle)
@@ -378,53 +391,60 @@ def find_solutions(puzzle, call_count):
 	
 	call_count = call_count + 1
 	
-	if call_count % 30 == 0:
-		print('find solutions called')
-		print_puzzle(puzzle)
-		print(call_count)
+	#if call_count % 30 == 0:
+	#	print('find solutions called')
+	#	print_puzzle(puzzle)
+	#	print(call_count)
 	
 	
+	new_row = row
+	new_col = col + 1
 	
-	for row in range(0, 9):
-		for col in range(0, 9):
-			possible_values = get_value(puzzle, row, col)
-			
-			if not (possible_values in number_check):
+	if(new_col > 8):
+		new_row = row + 1
+		new_col = 0
+	
+	possible_values = get_value(puzzle, row, col)
+	
+	if not (possible_values in number_check):
+		
+		for num in number_check:
+			if num & possible_values > 0:
 				
-				for num in number_check:
-					if num & possible_values > 0:
+				original_value = get_value(puzzle, row, col)
+				
+				#new_puzzle = puzzle.copy()
+				
+				set_value(puzzle, row, col, num)
+				
+				block_coords = get_block_coordinates(row, col)
+				
+				if validate_set(get_row(puzzle, row)) and validate_set(get_column(puzzle, col)) and validate_set(get_block(puzzle, block_coords[0], block_coords[1])):
+					
+					new_puzzle = puzzle.copy()
+					
+					try:
+						add_possible_values(new_puzzle)
 						
-						original_value = get_value(puzzle, row, col)
-						
-						#new_puzzle = puzzle.copy()
-						
-						set_value(puzzle, row, col, num)
-						
-						block_coords = get_block_coordinates(row + 1, col + 2)
-						
-						if validate_set(get_row(puzzle, row)) and validate_set(get_column(puzzle, col)) and validate_set(get_block(puzzle, block_coords[0], block_coords[1])):
+						if(test_solution(new_puzzle)):
+							solutions[puzzle_to_string(new_puzzle)] = 1
 							
-							new_puzzle = puzzle.copy()
-							
-							try:
-								add_possible_values(new_puzzle)
+							print_solution(new_puzzle, call_count)
+						else:
+							if(not puzzle_to_string(new_puzzle) in paths_checked and new_row < 9 and new_col < 9):
+								find_solutions(new_puzzle, call_count, new_row, new_col)
 								
-								if(test_solution(new_puzzle)):
-									solutions[puzzle_to_string(new_puzzle)] = 1
-									
-									print_solution(new_puzzle, call_count)
-									
-								else:
-									if(not puzzle_to_string(new_puzzle) in paths_checked):
-										find_solutions(new_puzzle, call_count)
-										
-							except Exception as e:
-								e
-								#print_puzzle(new_puzzle)
-								#print(e)
-						
-						set_value(puzzle, row, col, original_value)
+					except Exception as e:
+						e
+						#print_puzzle(new_puzzle)
+						#print(e)
 				
+				set_value(puzzle, row, col, original_value)
+		
+	if(new_row < 9 and new_col < 9):
+		find_solutions(puzzle, call_count, new_row, new_col)
+
+		
 def print_solution(puzzle, call_count):
 	print('------------------------------------------------------')
 	print('----------------- solution found ---------------------')
@@ -432,6 +452,7 @@ def print_solution(puzzle, call_count):
 	print_puzzle(puzzle)
 	print(call_count)
 	print(solutions)
+
 						
 def puzzle_to_string(puzzle):
 	
@@ -507,5 +528,5 @@ if(validate_puzzle(puzzle)):
 	print('with values')
 	print_puzzle(puzzle)
 	
-	find_solutions(puzzle, 1)
+	find_solutions(puzzle, 1, 0, 0)
 
